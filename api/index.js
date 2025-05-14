@@ -9,7 +9,6 @@ mongoose
   .then(() => {
     console.log("mongodb connected!");
   })
-
   .catch((err) => {
     console.log(`an error occured during connection to database!!\n\t${err}`);
   });
