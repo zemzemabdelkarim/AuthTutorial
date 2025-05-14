@@ -7,7 +7,7 @@ export const signup = async (req, res, next) => {
   try {
     await newUser.save();
     res.status(201).json({
-      message: "supposedly seccess",
+      message: "user created",
     });
   } catch (err) {
     next(err);
