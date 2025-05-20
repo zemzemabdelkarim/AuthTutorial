@@ -8,7 +8,20 @@ export const userHomePage = (req, res) => {
   });
 };
 
+export const updatePicture = async (req, res, next) => {
+  try {
+    
+    if(!req.file) return next(errorHandler(400, "no file uploaded"));
+
+    res.status(201).json({message:"Image uploaded!", success: true, filename: req.file.filename});
+
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateUser = async (req, res, next) => {
+  
   
   if (req.user.id !== req.params.id)
     return next(errorHandler(401, "you can update only your profile"));

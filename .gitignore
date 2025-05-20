@@ -1,4 +1,6 @@
 .env
+api/public
+api/public/*
 
 # Logs
 logs

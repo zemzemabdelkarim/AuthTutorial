@@ -24,7 +24,23 @@ export default function Profile() {
   }, [image]);
 
   const hanleFileUpload = async (image) => {
-    console.log(image);
+    
+    try {
+      const imageForm = new FormData();
+      imageForm.append('image', image);
+
+      const res = await fetch('/api/user/updatePicture', {
+        method: 'POST',
+        body: imageForm,
+      });
+      
+      const response = await res.json();
+      setFormData({ ...formData, profilePicture: `/api/public/${response.filename}` });
+
+    } catch (error) {
+      setImageError(true)
+      console.log(error);
+    }
 
     /*try {
       const storage = getStorage(app);
@@ -71,8 +87,8 @@ export default function Profile() {
           onChange={(e) => setImage(e.target.files[0])}
         />
         <img
-          //src={formData.profilePicture || currentUser.profilePicture}
-          src={currentUser.profilePicture}
+          src={formData.profilePicture || currentUser.profilePicture}
+          //src={currentUser.profilePicture}
           alt="profile picture"
           className="
           self-center

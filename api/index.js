@@ -22,12 +22,15 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+
 app.listen(PORT, () => {
   console.log(`server is listenning on port ${PORT}`);
 });
 
 app.use('/api/user/', userRoutes);
 app.use("/api/auth", authRoutes);
+
+app.use('/api/public',express.static('api/public'));
 
 app.use((err, req, res, next)=>{
   const statusCode = err.statusCode || 500;
