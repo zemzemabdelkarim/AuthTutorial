@@ -9,7 +9,6 @@ export const userHomePage = (req, res) => {
 };
 
 export const updateUser = async (req, res, next) => {
-  console.log("updateUser is now working");
   
   if (req.user.id !== req.params.id)
     return next(errorHandler(401, "you can update only your profile"));
@@ -33,11 +32,9 @@ export const updateUser = async (req, res, next) => {
     );
 
     const { hashedPassword, ...rest } = updatedUser._doc;
-    console.log("userUpdate end work without errors7");
     
     return res.status(200).json(rest);
   } catch (error) {
-    console.log("userUpdate end work with an error");
     console.error(error);
     
     next(error);
