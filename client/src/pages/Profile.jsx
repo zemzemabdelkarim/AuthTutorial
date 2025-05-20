@@ -1,21 +1,29 @@
 import { useSelector } from "react-redux";
 import { useRef, useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import {
+  updateUserStart,
+  updateUserSuccess,
+  updateUserFailure,
+} from "../redux/user/userSlice";
+/*import {
   getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
-
+*/
 export default function Profile() {
   const fileRef = useRef(null);
   const [image, setImage] = useState(undefined);
   const [imagePercentage, setImagePercentage] = useState(0);
   const [imageError, setImageError] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({})
+  const [updateSuccess, setUpdateSuccess] = useState(false);
 
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (image) {
@@ -24,61 +32,57 @@ export default function Profile() {
   }, [image]);
 
   const hanleFileUpload = async (image) => {
-    
     try {
       const imageForm = new FormData();
-      imageForm.append('image', image);
+      imageForm.append("image", image);
 
-      const res = await fetch('/api/user/updatePicture', {
-        method: 'POST',
+      const res = await fetch("/api/user/updatePicture", {
+        method: "POST",
         body: imageForm,
       });
-      
+
       const response = await res.json();
-      setFormData({ ...formData, profilePicture: `/api/public/${response.filename}` });
-
-    } catch (error) {
-      setImageError(true)
-      console.log(error);
-    }
-
-    /*try {
-      const storage = getStorage(app);
-      const fileName = new Date().getTime() + image.name;
-      const storageRef = ref(storage, fileName);
-      const uploadTask = uploadBytesResumable(storageRef, image);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          //console.log(`Upload is ${progress}% done`);
-          setImagePercentage(Math.round(progress));
-        },
-        (error) => {
-          console.log(error);
-
-          setImageError(true);
-          console.log(`imageError = ${imageError}`);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setFormData({ ...formData, profilePicture: downloadURL });
-          });
-        }
-      );
+      setFormData({
+        ...formData,
+        profilePicture: `/api/public/${response.filename}`,
+      });
     } catch (error) {
       setImageError(true);
-      console.log(`imageError = ${imageError}`);
+      console.log(error);
     }
-    console.log(imageError);
-    */
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch(updateUserStart())
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if(!data.success){
+        dispatch(updateUserFailure(data.message));
+        return;
+      }
+      dispatch(updateUserSuccess(data));
+      setUpdateSuccess(true);
+    } catch (error) {
+      dispatch(updateUserFailure(error))
+    }
   };
 
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
-      <form className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <input
           type="file"
           ref={fileRef}
@@ -120,6 +124,7 @@ export default function Profile() {
           name="username"
           placeholder="Username"
           className="bg-slate-100 rounded-lg p-3"
+          onChange={handleChange}
         />
         <input
           defaultValue={currentUser.email}
@@ -128,6 +133,7 @@ export default function Profile() {
           name="email"
           placeholder="Email"
           className="bg-slate-100 rounded-lg p-3"
+          onChange={handleChange}
         />
         <input
           type="password"
@@ -139,6 +145,7 @@ export default function Profile() {
           rounded-lg
           p-3
           "
+          onChange={handleChange}
         />
         <button
           className="
@@ -151,13 +158,15 @@ export default function Profile() {
         disabled:opacity-80
         "
         >
-          Update
+          {loading ? 'loading...' : 'Update'}
         </button>
       </form>
       <div className="flex justify-between mt-5">
         <span className="text-red-700">Delete account</span>
         <span className="text-red-700">Sign out</span>
       </div>
+     <p className="text-red-700 mt-5">{error && 'Something went wrong!'}</p> 
+     <p className="text-green-700 mt-5">{updateSuccess && 'user is updated successfully'}</p> 
     </div>
   );
 }
