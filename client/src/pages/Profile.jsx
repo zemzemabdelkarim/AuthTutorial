@@ -203,8 +203,8 @@ export default function Profile() {
         </button>
       </form>
       <div className="flex justify-between mt-5">
-        <span onClick={handleDeleteAccount} className="text-red-700">Delete account</span>
-        <span onClick={handleSignout} className="text-red-700">Sign out</span>
+        <span onClick={handleDeleteAccount} className="text-red-700 cursor-pointer">Delete account</span>
+        <span onClick={handleSignout} className="text-red-700 cursor-pointer">Sign out</span>
       </div>
      <p className="text-red-700 mt-5">{error && 'Something went wrong!'}</p> 
      <p className="text-green-700 mt-5">{updateSuccess && 'user is updated successfully'}</p> 
